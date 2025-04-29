@@ -9,7 +9,9 @@ def find_table_data(sheet, table_name, first_column):
     data = []
 
     for row in sheet:
-        if table_name in row:  # Check if we found our table
+        if (
+            isinstance(row[0], str) and table_name in row[0]
+        ):  # Check if we found our table
             table_found = True
             continue
         elif not table_found:  # If the table name hasn't been found, we keep looking
@@ -22,6 +24,9 @@ def find_table_data(sheet, table_name, first_column):
             data.append([val for val in row if val is not None])
         elif columns:  # Table data ended
             break
+
+    if not data:
+        return None
 
     return pd.DataFrame(data, columns=columns)
 
@@ -39,8 +44,11 @@ def get_sheet_data(
     sheet_data = dict()
 
     for table in target_tables:
-        sheet_data[table[0]] = find_table_data(
+        table_data = find_table_data(
             sheet=data, table_name=table[0], first_column=table[1]
         )
+        if isinstance(table_data, pd.DataFrame):
+            table_key = table[0] if table[0] != "undefined" else sheet_name
+            sheet_data[table_key] = table_data
 
     return sheet_data
