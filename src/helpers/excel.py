@@ -3,7 +3,6 @@ import typing as t
 import pandas as pd
 
 
-# Function to clean monetary values
 def clean_number_values(val):
     if isinstance(val, str):
         val = val.replace("€", "").replace("%", "").replace(",", "").strip()
@@ -14,6 +13,7 @@ def find_table_data(sheet, table_name, first_column):
     table_found = False
     columns = []
     data = []
+    bets_cols_indexes = []
 
     for i, row in enumerate(sheet):
         if (
@@ -28,11 +28,14 @@ def find_table_data(sheet, table_name, first_column):
             columns = [col for col in row if col is not None]
 
             if "Bets" in columns and "Accepted Bets" in sheet[i - 1]:
-                indexes = [i for i, x in enumerate(row) if x == "Bets"]
+                bets_cols_indexes = [i for i, x in enumerate(row) if x == "Bets"]
                 columns = (
-                    columns[: indexes[0]]
-                    + [f"Accepted {col}" for col in columns[indexes[0] : indexes[1]]]
-                    + [f"Rejected {col}" for col in columns[indexes[1] :]]
+                    columns[: bets_cols_indexes[0]]
+                    + [
+                        f"Accepted {col}"
+                        for col in columns[bets_cols_indexes[0] : bets_cols_indexes[1]]
+                    ]
+                    + [f"Rejected {col}" for col in columns[bets_cols_indexes[1] :]]
                 )
 
             continue
@@ -49,11 +52,27 @@ def find_table_data(sheet, table_name, first_column):
     # Apply to all object columns
     for col in df.select_dtypes(include="object").columns:
         df[col] = df[col].apply(clean_number_values)
-        
+
         try:
             df[col] = pd.to_numeric(df[col])
         except:
             pass
+
+    if bets_cols_indexes:
+        generic_columns = [
+            col.replace("Accepted ", "")
+            for col in columns
+            if "Accepted " in col and "Margin" not in col
+        ]
+
+        for col in generic_columns:
+            df[f"Total {col}"] = df[f"Accepted {col}"] + df[f"Rejected {col}"]
+
+        df[f"Accepted Margin"] = df["Accepted P/L"] / df["Accepted T/O"]
+        df[f"Rejected Margin"] = df["Rejected P/L"] / df["Rejected T/O"]
+        df[f"Total Margin"] = df["Total P/L"] / df["Total T/O"]
+    elif "Margin" in columns:
+        df["Margin"] = df["P/L"] / df["T/O"]
 
     return df
 
