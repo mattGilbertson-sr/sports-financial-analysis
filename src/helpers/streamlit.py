@@ -45,7 +45,9 @@ def display_data_dict(title: str, tab, data_dict: dict[str, pd.DataFrame]):
                 for col in df.select_dtypes(include="number").columns:
                     col_format = "%d"
 
-                    if not pd.api.types.is_integer_dtype(df[col]) and "Margin" in col:
+                    if not pd.api.types.is_integer_dtype(df[col]) and (
+                        "Margin" in col or "%" in col
+                    ):
                         col_format = "percent"
                     elif not pd.api.types.is_integer_dtype(df[col]):
                         col_format = "euro"
