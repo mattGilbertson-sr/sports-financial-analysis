@@ -1,9 +1,13 @@
 from openpyxl import Workbook
+import typing as t
+import pandas as pd
 
 from helpers.excel import get_sheet_data
 
 
-def get_market_summary_data(workbook: Workbook):
+def get_market_summary_data(
+    workbook: Workbook, total_match_turnover: float
+) -> t.Dict[str, pd.DataFrame]:
     sheet_name = "Market Summary - Singles"
     targeted_tables = [
         ("Market Summary - Singles", "Market"),
@@ -13,10 +17,21 @@ def get_market_summary_data(workbook: Workbook):
         workbook=workbook, sheet_name=sheet_name, target_tables=targeted_tables
     )
 
-    dict_key = list(df_dict.keys())[0]
+    df_dict_items = list(df_dict.items())
 
-    total_match = df_dict[dict_key]["Total T/O"].sum()
+    for key, df in df_dict_items:
+        df_dict[f"{key} - FT"] = df[
+            (~df["Market"].str.contains("1st half", case=False, na=False))
+            & (~df["Market"].str.contains("2nd half", case=False, na=False))
+        ]
+        df_dict[f"{key} - 1H"] = df[
+            df["Market"].str.contains("1st half", case=False, na=False)
+        ]
+        df_dict[f"{key} - 2H"] = df[
+            df["Market"].str.contains("2nd half", case=False, na=False)
+        ]
 
-    df_dict[dict_key]["Match %"] = df_dict[dict_key]["Total T/O"] / total_match
+    for df in df_dict.values():
+        df["Match %"] = df["Total T/O"] / total_match_turnover
 
     return df_dict

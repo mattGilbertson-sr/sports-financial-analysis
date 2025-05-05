@@ -1,19 +1,27 @@
 import streamlit as st
+import typing as t
 import pandas as pd
+from openpyxl import Workbook
 from streamlit import column_config
 
 
-def set_session_state(wb, session_state_key, data_function, uploaded_file_name):
+def set_session_state(
+    wb: Workbook,
+    session_state_key: str,
+    data_function: t.Callable,
+    uploaded_file_name: str,
+    **kwargs,
+) -> t.Any:
     if (
         session_state_key not in st.session_state
         or uploaded_file_name != st.session_state.get("file_name")
     ):
-        st.session_state[session_state_key] = data_function(wb)
+        st.session_state[session_state_key] = data_function(wb, **kwargs)
 
     return st.session_state[session_state_key]
 
 
-def style_df(df: pd.DataFrame):
+def style_df(df: pd.DataFrame) -> pd.DataFrame:
     columns = df.columns
 
     green_cols = [col for col in columns if "Accepted " in col]
@@ -36,7 +44,7 @@ def style_df(df: pd.DataFrame):
     )
 
 
-def display_data_dict(title: str, tab, data_dict: dict[str, pd.DataFrame]):
+def display_data_dict(tab, data_dict: dict[str, pd.DataFrame]) -> None:
     with tab:
         for key, df in data_dict.items():
             with st.expander(f"{key}", expanded=False):

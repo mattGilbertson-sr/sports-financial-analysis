@@ -1,9 +1,13 @@
 from openpyxl import Workbook
+import typing as t
+import pandas as pd
 
 from helpers.excel import get_sheet_data
 
 
-def get_period_summary_data(workbook: Workbook):
+def get_period_summary_data(
+    workbook: Workbook, total_match_turnover: float
+) -> t.Dict[str, pd.DataFrame]:
     sheet_name = "Period Summary - Singles"
     targeted_tables = [
         ("undefined", "Period"),
@@ -13,10 +17,7 @@ def get_period_summary_data(workbook: Workbook):
         workbook=workbook, sheet_name=sheet_name, target_tables=targeted_tables
     )
 
-    dict_key = list(df_dict.keys())[0]
-
-    total_match = df_dict[dict_key]["Total T/O"].sum()
-
-    df_dict[dict_key]["Match %"] = df_dict[dict_key]["Total T/O"] / total_match
+    for df in df_dict.values():
+        df["Match %"] = df["Total T/O"] / total_match_turnover
 
     return df_dict

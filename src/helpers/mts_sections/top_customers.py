@@ -1,9 +1,11 @@
 from openpyxl import Workbook
+import typing as t
+import pandas as pd
 
 from helpers.excel import get_sheet_data
 
 
-def get_top_customers_data(workbook: Workbook):
+def get_top_customers_data(workbook: Workbook) -> t.Dict[str, pd.DataFrame]:
     sheet_name = "Top Customers"
     targeted_tables = [
         # Top 1

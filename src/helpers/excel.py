@@ -3,13 +3,15 @@ import typing as t
 import pandas as pd
 
 
-def clean_number_values(val):
+def clean_number_values(val: t.Any) -> t.Any:
     if isinstance(val, str):
         val = val.replace("€", "").replace("%", "").replace(",", "").strip()
     return val
 
 
-def find_table_data(sheet, table_name, first_column):
+def find_table_data(
+    sheet: t.List[t.List[t.Any]], table_name: str, first_column: str
+) -> t.Optional[pd.DataFrame]:
     table_found = False
     columns = []
     data = []
@@ -83,7 +85,7 @@ def get_sheet_data(
     target_tables: t.List[
         t.Tuple[str, str]
     ],  # Tuples are made of (table_name, first_column)
-):
+) -> t.Dict[str, pd.DataFrame]:
     sheet = workbook[sheet_name]
     data = [[cell.value for cell in row] for row in sheet.iter_rows()]
 
