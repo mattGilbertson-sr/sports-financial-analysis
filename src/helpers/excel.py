@@ -11,8 +11,9 @@ def clean_number_values(val: t.Any) -> t.Any:
 
 def find_table_data(
     sheet: t.List[t.List[t.Any]], table_name: str, first_column: str
-) -> t.Optional[pd.DataFrame]:
+) -> t.Tuple[t.Optional[pd.DataFrame], str]:
     table_found = False
+    full_table_name = "undefined"
     columns = []
     data = []
     bets_cols_indexes = []
@@ -22,6 +23,7 @@ def find_table_data(
             isinstance(row[0], str) and table_name in row[0]
         ):  # Check if we found our table
             table_found = True
+            full_table_name = row[0]
             continue
         elif not table_found:  # If the table name hasn't been found, we keep looking
             continue
@@ -47,7 +49,7 @@ def find_table_data(
             break
 
     if not data:
-        return None
+        return None, full_table_name
 
     df = pd.DataFrame(data, columns=columns)
 
@@ -76,7 +78,7 @@ def find_table_data(
     elif "Margin" in columns:
         df["Margin"] = df["P/L"] / df["T/O"]
 
-    return df
+    return df, full_table_name
 
 
 def get_sheet_data(
@@ -85,6 +87,7 @@ def get_sheet_data(
     target_tables: t.List[
         t.Tuple[str, str]
     ],  # Tuples are made of (table_name, first_column)
+    include_full_table_name=False,
 ) -> t.Dict[str, pd.DataFrame]:
     sheet = workbook[sheet_name]
     data = [[cell.value for cell in row] for row in sheet.iter_rows()]
@@ -92,11 +95,13 @@ def get_sheet_data(
     sheet_data = dict()
 
     for table in target_tables:
-        table_data = find_table_data(
+        table_data, full_table_name = find_table_data(
             sheet=data, table_name=table[0], first_column=table[1]
         )
         if isinstance(table_data, pd.DataFrame):
             table_key = table[0] if table[0] != "undefined" else sheet_name
-            sheet_data[table_key] = table_data
+            sheet_data[full_table_name if include_full_table_name else table_key] = (
+                table_data
+            )
 
     return sheet_data
