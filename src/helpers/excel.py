@@ -70,7 +70,15 @@ def find_table_data(
         ]
 
         for col in generic_columns:
-            df[f"Total {col}"] = df[f"Accepted {col}"] + df[f"Rejected {col}"]
+            if col == "Avg Stake":
+                accepted_pct = df["Accepted Bets"] / df["Total Bets"]
+                rejected_pct = df["Rejected Bets"] / df["Total Bets"]
+                df["Total Avg Stake"] = (
+                    df["Accepted Avg Stake"] * accepted_pct
+                    + df["Rejected Avg Stake"] * rejected_pct
+                )
+            else:
+                df[f"Total {col}"] = df[f"Accepted {col}"] + df[f"Rejected {col}"]
 
         df[f"Accepted Margin"] = df["Accepted P/L"] / df["Accepted T/O"]
         df[f"Rejected Margin"] = df["Rejected P/L"] / df["Rejected T/O"]
