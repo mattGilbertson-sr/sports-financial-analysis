@@ -56,4 +56,28 @@ def get_top_customers_data(workbook: Workbook) -> t.Dict[str, pd.DataFrame]:
             cleaned_next_key: df_dict[next_key],
         }
 
+        total_customer_turnover = df_dict[next_key]["T/O"].sum()
+
+        formatted_dict[customer_info][f"{cleaned_next_key} By Market"] = (
+            df_dict[next_key]
+            .groupby("Market")
+            .agg(
+                total_to=("T/O", "sum"),
+                total_pl=("P/L", "sum"),
+                won_count=("Result", lambda x: x.str.contains("Won", case=False).sum()),
+                turnover_pct=("T/O", lambda x: x.sum() / total_customer_turnover),
+                total_bets=("Result", "count"),
+            )
+            .rename(
+                columns={
+                    "total_to": "T/O",
+                    "total_pl": "P/L",
+                    "won_count": "Wins",
+                    "total_bets": "Bets",
+                    "turnover_pct": "Customer %",
+                }
+            )
+            .reset_index()
+        )
+
     return formatted_dict
