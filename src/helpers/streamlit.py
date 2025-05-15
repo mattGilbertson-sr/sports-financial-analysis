@@ -54,6 +54,8 @@ def display_streamlit_df(df: pd.DataFrame) -> None:
             "Margin" in col or "%" in col
         ):
             col_format = "percent"
+        elif "CCF" in col:
+            col_format = "accounting"
         elif not pd.api.types.is_integer_dtype(df[col]):
             col_format = "euro"
 
