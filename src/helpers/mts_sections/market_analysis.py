@@ -21,6 +21,10 @@ def get_market_percentage(
         df_filtered = df_filtered[
             df_filtered["Market"].str.contains("handicap", case=False, na=False)
         ]
+    elif "total corners" in market["Market"].lower():
+        df_filtered = df_filtered[
+            df_filtered["Market"].str.contains("total corners", case=False, na=False)
+        ]
     elif "total" in market["Market"].lower():
         df_filtered = df_filtered[
             df_filtered["Market"].str.contains("total", case=False, na=False)
