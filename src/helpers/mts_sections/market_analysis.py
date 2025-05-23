@@ -6,13 +6,18 @@ from helpers.excel import get_sheet_data
 
 
 def get_market_percentage(
-    market: pd.Series, market_summary_data: t.Dict[str, pd.DataFrame]
+    market: pd.Series,
+    market_summary_data: t.Dict[str, pd.DataFrame],
+    teams: t.List[str],
 ) -> float:
     # Filter by period
+    period_market = None
     if "1st half" in market["Market"]:
         df_filtered = market_summary_data["Market Summary - Singles - 1H"]
+        period_market = "1st half"
     elif "2nd half" in market["Market"]:
         df_filtered = market_summary_data["Market Summary - Singles - 2H"]
+        period_market = "2nd half"
     else:
         df_filtered = market_summary_data["Market Summary - Singles - FT"]
 
@@ -21,11 +26,9 @@ def get_market_percentage(
         df_filtered = df_filtered[
             df_filtered["Market"].str.contains("handicap", case=False, na=False)
         ]
-    elif "total corners" in market["Market"].lower():
-        df_filtered = df_filtered[
-            df_filtered["Market"].str.contains("total corners", case=False, na=False)
-        ]
-    elif "total" in market["Market"].lower():
+    elif "total" == market["Market"].lower() or (
+        period_market and f"{period_market} - total" == market["Market"].lower()
+    ):
         df_filtered = df_filtered[
             df_filtered["Market"].str.contains("total", case=False, na=False)
         ]
@@ -52,10 +55,31 @@ def get_market_analysis_data(
         workbook=workbook, sheet_name=sheet_name, target_tables=targeted_tables
     )
 
+    # Define both teams
+    ft_market_data = df_dict["Market Analysis - Singles"]
+    teams = ft_market_data[
+        (ft_market_data["Market"] == "1x2") & (ft_market_data["Selection"] != "draw")
+    ]["Selection"].tolist()
+    teams = [t.lower() for t in teams]
+
+    df_dict_items = list(df_dict.items())
+
+    for key, df in df_dict_items:
+        df_dict[f"{key} - FT"] = df[
+            (~df["Market"].str.contains("1st half", case=False, na=False))
+            & (~df["Market"].str.contains("2nd half", case=False, na=False))
+        ]
+        df_dict[f"{key} - 1H"] = df[
+            df["Market"].str.contains("1st half", case=False, na=False)
+        ]
+        df_dict[f"{key} - 2H"] = df[
+            df["Market"].str.contains("2nd half", case=False, na=False)
+        ]
+
     for df in df_dict.values():
         df["Match %"] = df["Total T/O"] / total_match_turnover
         df["Market %"] = df.apply(
-            lambda x: get_market_percentage(x, market_summary_data), axis=1
+            lambda x: get_market_percentage(x, market_summary_data, teams), axis=1
         )
 
     return df_dict
