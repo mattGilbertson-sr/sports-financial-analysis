@@ -77,6 +77,9 @@ def get_market_analysis_data(
         ]
 
     for df in df_dict.values():
+        if not len(df):
+            continue
+
         df["Match %"] = df["Total T/O"] / total_match_turnover
         df["Market %"] = df.apply(
             lambda x: get_market_percentage(x, market_summary_data, teams), axis=1
