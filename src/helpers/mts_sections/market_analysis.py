@@ -35,7 +35,7 @@ def get_market_percentage(
     else:
         df_filtered = df_filtered[df_filtered["Market"] == market["Market"]]
 
-    if not len(df_filtered):
+    if not len(df_filtered) or not df_filtered["Total T/O"].sum():
         return 0
 
     return market["Total T/O"] / df_filtered["Total T/O"].sum()
