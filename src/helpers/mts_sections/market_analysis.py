@@ -12,7 +12,19 @@ def get_market_percentage(
 ) -> float:
     # Filter by period
     period_market = ""
-    if "1st half" in market["Market"]:
+    if "1st quarter" in market["Market"]:
+        df_filtered = market_summary_data["Market Summary - Singles - 1Q"]
+        period_market = "1st quarter"
+    elif "2nd quarter" in market["Market"]:
+        df_filtered = market_summary_data["Market Summary - Singles - 2Q"]
+        period_market = "2nd quarter"
+    elif "3rd quarter" in market["Market"]:
+        df_filtered = market_summary_data["Market Summary - Singles - 3Q"]
+        period_market = "3rd quarter"
+    elif "4th quarter" in market["Market"]:
+        df_filtered = market_summary_data["Market Summary - Singles - 4Q"]
+        period_market = "4th quarter"
+    elif "1st half" in market["Market"]:
         df_filtered = market_summary_data["Market Summary - Singles - 1H"]
         period_market = "1st half"
     elif "2nd half" in market["Market"]:
