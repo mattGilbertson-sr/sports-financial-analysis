@@ -11,7 +11,7 @@ def get_market_percentage(
     teams: t.List[str],
 ) -> float:
     # Filter by period
-    period_market = None
+    period_market = ""
     if "1st half" in market["Market"]:
         df_filtered = market_summary_data["Market Summary - Singles - 1H"]
         period_market = "1st half"
@@ -29,8 +29,9 @@ def get_market_percentage(
     elif "total" == market["Market"].lower() or (
         period_market and f"{period_market} - total" == market["Market"].lower()
     ):
+        totals_key = f"{period_market} - total" if period_market else "total"
         df_filtered = df_filtered[
-            df_filtered["Market"].str.contains("total", case=False, na=False)
+            df_filtered["Market"].str.contains(totals_key, case=False, na=False)
         ]
     else:
         df_filtered = df_filtered[df_filtered["Market"] == market["Market"]]
