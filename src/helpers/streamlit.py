@@ -12,13 +12,16 @@ def set_session_state(
     uploaded_file_name: str,
     **kwargs,
 ) -> t.Any:
-    if (
-        session_state_key not in st.session_state
-        or uploaded_file_name != st.session_state.get("file_name")
-    ):
-        st.session_state[session_state_key] = data_function(wb, **kwargs)
+    try:
+        if (
+            session_state_key not in st.session_state
+            or uploaded_file_name != st.session_state.get("file_name")
+        ):
+            st.session_state[session_state_key] = data_function(wb, **kwargs)
 
-    return st.session_state[session_state_key]
+        return st.session_state[session_state_key]
+    except KeyError:
+        return None
 
 
 def style_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -70,7 +73,10 @@ def display_streamlit_df(df: pd.DataFrame) -> None:
     )
 
 
-def display_data_dict(tab, data_dict: dict[str, pd.DataFrame]) -> None:
+def display_data_dict(tab, data_dict: t.Optional[dict[str, pd.DataFrame]]) -> None:
+    if not data_dict:
+        return
+
     with tab:
         for key, val in data_dict.items():
             if isinstance(val, pd.DataFrame):
