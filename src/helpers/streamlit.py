@@ -80,11 +80,13 @@ def display_data_dict(tab, data_dict: t.Optional[dict[str, pd.DataFrame]]) -> No
     with tab:
         for key, val in data_dict.items():
             if isinstance(val, pd.DataFrame):
-                with st.expander(f"{key}", expanded=False):
-                    display_streamlit_df(val)
+                if len(val):
+                    with st.expander(f"{key}", expanded=False):
+                        display_streamlit_df(val)
             elif isinstance(val, dict):
                 st.subheader(key)
 
                 for sub_key, sub_df in val.items():
-                    with st.expander(f"{sub_key}", expanded=False):
-                        display_streamlit_df(sub_df)
+                    if len(sub_df):
+                        with st.expander(f"{sub_key}", expanded=False):
+                            display_streamlit_df(sub_df)
