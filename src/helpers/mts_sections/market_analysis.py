@@ -3,55 +3,7 @@ import typing as t
 from openpyxl import Workbook
 
 from helpers.excel import get_sheet_data
-
-
-def get_market_percentage(
-    market: pd.Series,
-    market_summary_data: t.Dict[str, pd.DataFrame],
-    teams: t.List[str],
-) -> float:
-    # Filter by period
-    period_market = ""
-    if "1st quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 1Q"]
-        period_market = "1st quarter"
-    elif "2nd quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 2Q"]
-        period_market = "2nd quarter"
-    elif "3rd quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 3Q"]
-        period_market = "3rd quarter"
-    elif "4th quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 4Q"]
-        period_market = "4th quarter"
-    elif "1st half" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 1H"]
-        period_market = "1st half"
-    elif "2nd half" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 2H"]
-        period_market = "2nd half"
-    else:
-        df_filtered = market_summary_data["Market Summary - Singles - FT"]
-
-    # Filter by market
-    if "handicap" in market["Market"].lower():
-        df_filtered = df_filtered[
-            df_filtered["Market"].str.contains("handicap", case=False, na=False)
-        ]
-    elif "total" == market["Market"].lower() or (
-        period_market and f"{period_market} - total" == market["Market"].lower()
-    ):
-        totals_key = f"{period_market} - total" if period_market else "total"
-        df_filtered = df_filtered[
-            df_filtered["Market"].str.contains(totals_key, case=False, na=False)
-        ]
-    else:
-        df_filtered = df_filtered[df_filtered["Market"] == market["Market"]]
-
-    if not len(df_filtered) or not df_filtered["Total T/O"].sum():
-        return 0
-
-    return market["Total T/O"] / df_filtered["Total T/O"].sum()
+from helpers.market_percentage import get_market_percentage
 
 
 def get_market_analysis_data(
@@ -70,10 +22,10 @@ def get_market_analysis_data(
 
     # Define both teams
     ft_market_data = df_dict["Market Analysis - Singles"]
-    teams = ft_market_data[
-        (ft_market_data["Market"] == "1x2") & (ft_market_data["Selection"] != "draw")
-    ]["Selection"].tolist()
-    teams = [t.lower() for t in teams]
+    # teams = ft_market_data[
+    #     (ft_market_data["Market"] == "1x2") & (ft_market_data["Selection"] != "draw")
+    # ]["Selection"].tolist()
+    # teams = [t.lower() for t in teams]
 
     df_dict_items = list(df_dict.items())
 
@@ -95,7 +47,7 @@ def get_market_analysis_data(
 
         df["Match %"] = df["Total T/O"] / total_match_turnover
         df["Market %"] = df.apply(
-            lambda x: get_market_percentage(x, market_summary_data, teams), axis=1
+            lambda x: get_market_percentage(x, market_summary_data), axis=1
         )
 
     return df_dict

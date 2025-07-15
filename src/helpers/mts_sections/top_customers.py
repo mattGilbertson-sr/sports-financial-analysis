@@ -3,6 +3,7 @@ import typing as t
 import pandas as pd
 
 from helpers.excel import get_sheet_data
+from helpers.market_percentage import get_market_percentage, get_selection_percentage
 
 
 def get_customer_key_splitted(key: str) -> t.Tuple[str, str]:
@@ -14,7 +15,11 @@ def get_customer_key_splitted(key: str) -> t.Tuple[str, str]:
     return key[:bookmaker_index], key[bookmaker_index:]
 
 
-def get_top_customers_data(workbook: Workbook) -> t.Dict[str, pd.DataFrame]:
+def get_top_customers_data(
+    workbook: Workbook,
+    market_summary_data: t.Dict[str, pd.DataFrame],
+    market_analysis_data: t.Dict[str, pd.DataFrame],
+) -> t.Dict[str, pd.DataFrame]:
     sheet_name = "Top Customers"
     targeted_tables = [
         # Top 1
@@ -100,6 +105,25 @@ def get_top_customers_data(workbook: Workbook) -> t.Dict[str, pd.DataFrame]:
                 }
             )
             .reset_index()
+        )
+
+        formatted_dict[customer_info][f"{cleaned_next_key} By Selection"][
+            "Selection %"
+        ] = formatted_dict[customer_info][f"{cleaned_next_key} By Selection"].apply(
+            lambda x: get_selection_percentage(
+                x,
+                market_analysis_data["Market Analysis - Singles"],
+                turnover_column="T/O",
+            ),
+            axis=1,
+        )
+        formatted_dict[customer_info][f"{cleaned_next_key} By Selection"][
+            "Market %"
+        ] = formatted_dict[customer_info][f"{cleaned_next_key} By Selection"].apply(
+            lambda x: get_market_percentage(
+                x, market_summary_data, turnover_column="T/O"
+            ),
+            axis=1,
         )
 
     return formatted_dict

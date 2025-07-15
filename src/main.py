@@ -57,7 +57,12 @@ if uploaded_file:
         total_match_turnover=total_match_turnover,
     )
     top_customers_data = set_session_state(
-        wb, "top_customers_data", mts.get_top_customers_data, uploaded_file_name
+        wb,
+        "top_customers_data",
+        mts.get_top_customers_data,
+        uploaded_file_name,
+        market_summary_data=market_summary_data,
+        market_analysis_data=market_analysis_data,
     )
     period_summary_data = set_session_state(
         wb,
