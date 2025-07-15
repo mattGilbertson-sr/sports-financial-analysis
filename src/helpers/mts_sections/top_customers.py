@@ -84,6 +84,14 @@ def get_top_customers_data(
             )
             .reset_index()
         )
+        formatted_dict[customer_info][f"{cleaned_next_key} By Market"][
+            "Market %"
+        ] = formatted_dict[customer_info][f"{cleaned_next_key} By Market"].apply(
+            lambda x: get_market_percentage(
+                x, market_summary_data, turnover_column="T/O"
+            ),
+            axis=1,
+        )
 
         formatted_dict[customer_info][f"{cleaned_next_key} By Selection"] = (
             df_dict[next_key]
