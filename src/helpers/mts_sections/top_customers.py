@@ -63,6 +63,7 @@ def get_top_customers_data(
 
         total_customer_turnover = df_dict[next_key]["T/O"].sum()
 
+        # Customer bets aggreagated by market
         formatted_dict[customer_info][f"{cleaned_next_key} By Market"] = (
             df_dict[next_key]
             .groupby("Market")
@@ -84,6 +85,8 @@ def get_top_customers_data(
             )
             .reset_index()
         )
+
+        # How much of that market did this customer account for
         formatted_dict[customer_info][f"{cleaned_next_key} By Market"][
             "Market %"
         ] = formatted_dict[customer_info][f"{cleaned_next_key} By Market"].apply(
@@ -93,6 +96,7 @@ def get_top_customers_data(
             axis=1,
         )
 
+        # Customer bets aggregated by selection
         formatted_dict[customer_info][f"{cleaned_next_key} By Selection"] = (
             df_dict[next_key]
             .groupby(["Market", "Selection"])
@@ -115,6 +119,7 @@ def get_top_customers_data(
             .reset_index()
         )
 
+        # How much of that selection did this customer account for
         formatted_dict[customer_info][f"{cleaned_next_key} By Selection"][
             "Selection %"
         ] = formatted_dict[customer_info][f"{cleaned_next_key} By Selection"].apply(
@@ -125,6 +130,8 @@ def get_top_customers_data(
             ),
             axis=1,
         )
+
+        # How much of that market did this customer account for with this selection
         formatted_dict[customer_info][f"{cleaned_next_key} By Selection"][
             "Market %"
         ] = formatted_dict[customer_info][f"{cleaned_next_key} By Selection"].apply(

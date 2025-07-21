@@ -79,10 +79,12 @@ def display_data_dict(tab, data_dict: t.Optional[dict[str, pd.DataFrame]]) -> No
 
     with tab:
         for key, val in data_dict.items():
+            # DataFrame
             if isinstance(val, pd.DataFrame):
                 if len(val):
                     with st.expander(f"{key}", expanded=False):
                         display_streamlit_df(val)
+            # Dict of DataFrames
             elif isinstance(val, dict):
                 st.subheader(key)
 

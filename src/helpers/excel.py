@@ -18,6 +18,7 @@ def find_table_data(
     data = []
     bets_cols_indexes = []
 
+    # Find table columns and data
     for i, row in enumerate(sheet):
         if (
             isinstance(row[0], str) and table_name in row[0]

@@ -3,6 +3,7 @@ import typing as t
 import pandas as pd
 
 from helpers.excel import get_sheet_data
+from helpers.market_percentage import get_market_dicts_by_period
 
 
 def get_market_summary_data(
@@ -20,32 +21,9 @@ def get_market_summary_data(
     df_dict_items = list(df_dict.items())
 
     for key, df in df_dict_items:
-        df_dict[f"{key} - FT"] = df[
-            (~df["Market"].str.contains("1st half", case=False, na=False))
-            & (~df["Market"].str.contains("2nd half", case=False, na=False))
-            & (~df["Market"].str.contains("1st quarter", case=False, na=False))
-            & (~df["Market"].str.contains("2nd quarter", case=False, na=False))
-            & (~df["Market"].str.contains("3rd quarter", case=False, na=False))
-            & (~df["Market"].str.contains("4th quarter", case=False, na=False))
-        ]
-        df_dict[f"{key} - 1H"] = df[
-            df["Market"].str.contains("1st half", case=False, na=False)
-        ]
-        df_dict[f"{key} - 2H"] = df[
-            df["Market"].str.contains("2nd half", case=False, na=False)
-        ]
-        df_dict[f"{key} - 1Q"] = df[
-            df["Market"].str.contains("1st quarter", case=False, na=False)
-        ]
-        df_dict[f"{key} - 2Q"] = df[
-            df["Market"].str.contains("2nd quarter", case=False, na=False)
-        ]
-        df_dict[f"{key} - 3Q"] = df[
-            df["Market"].str.contains("3rd quarter", case=False, na=False)
-        ]
-        df_dict[f"{key} - 4Q"] = df[
-            df["Market"].str.contains("4th quarter", case=False, na=False)
-        ]
+        df_dicts_by_period = get_market_dicts_by_period(key, df)
+
+        df_dict = {**df_dict, **df_dicts_by_period}
 
     for df in df_dict.values():
         df["Match %"] = df["Total T/O"] / total_match_turnover

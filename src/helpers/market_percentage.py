@@ -1,6 +1,33 @@
 import pandas as pd
 import typing as t
 
+periods_dict = {
+    "1st half": "1H",
+    "2nd half": "2H",
+    "1st quarter": "1Q",
+    "2nd quarter": "2Q",
+    "3rd quarter": "3Q",
+    "4th quarter": "4Q",
+}
+
+
+def get_market_dicts_by_period(market_key: str, df: pd.DataFrame) -> dict:
+    df_dict = dict()
+
+    # Dynamically exclude all period-specific rows to get "Full Time"
+    mask = ~df["Market"].str.contains(
+        "|".join(periods_dict.keys()), case=False, na=False
+    )
+    df_dict[f"{market_key} - FT"] = df[mask]
+
+    # Get the markets by period
+    for period_key, period_abbreviation in periods_dict.items():
+        df_dict[f"{market_key} - {period_abbreviation}"] = df[
+            df["Market"].str.contains(period_key, case=False, na=False)
+        ]
+
+    return df_dict
+
 
 def get_market_percentage(
     market: pd.Series,
@@ -9,25 +36,14 @@ def get_market_percentage(
 ) -> float:
     # Filter by period
     period_market = ""
-    if "1st quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 1Q"]
-        period_market = "1st quarter"
-    elif "2nd quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 2Q"]
-        period_market = "2nd quarter"
-    elif "3rd quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 3Q"]
-        period_market = "3rd quarter"
-    elif "4th quarter" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 4Q"]
-        period_market = "4th quarter"
-    elif "1st half" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 1H"]
-        period_market = "1st half"
-    elif "2nd half" in market["Market"]:
-        df_filtered = market_summary_data["Market Summary - Singles - 2H"]
-        period_market = "2nd half"
-    else:
+    for period_key, period_abbreviation in periods_dict.items():
+        if period_key in market["Market"]:
+            df_filtered = market_summary_data[
+                f"Market Summary - Singles - {period_abbreviation}"
+            ]
+            period_market = period_key
+
+    if not period_market:
         df_filtered = market_summary_data["Market Summary - Singles - FT"]
 
     # Filter by market
