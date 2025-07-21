@@ -49,16 +49,20 @@ def get_top_customers_data(
     formatted_dict = dict()
     keys = list(df_dict.keys())
 
+    # Format the customer display
     for i in range(0, len(keys), 2):
         key = keys[i]
         next_key = keys[i + 1]
+
+        # Convert the total margin to the right format of the streamlit percentage display
+        df_dict[key]["Total Margin"] = df_dict[key]["Total Margin"] / 100
 
         cleaned_key, customer_info = get_customer_key_splitted(key)
         cleaned_next_key, _ = get_customer_key_splitted(next_key)
 
         formatted_dict[customer_info] = {
-            cleaned_key: df_dict[key],
-            cleaned_next_key: df_dict[next_key],
+            cleaned_key: df_dict[key],  # Customer history information
+            cleaned_next_key: df_dict[next_key],  # Customer turnover data for the match
         }
 
         total_customer_turnover = df_dict[next_key]["T/O"].sum()
