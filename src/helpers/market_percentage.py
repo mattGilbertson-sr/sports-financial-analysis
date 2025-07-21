@@ -2,12 +2,17 @@ import pandas as pd
 import typing as t
 
 periods_dict = {
+    # Halves
     "1st half": "1H",
     "2nd half": "2H",
+    # Quarters
     "1st quarter": "1Q",
     "2nd quarter": "2Q",
     "3rd quarter": "3Q",
     "4th quarter": "4Q",
+    # Sets
+    "1st set": "1S",
+    "2nd set": "2S",
 }
 
 
