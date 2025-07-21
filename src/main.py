@@ -7,6 +7,8 @@ from helpers.streamlit import display_data_dict, set_session_state
 
 tabs = {
     "Overall Summary": None,
+    "Bookmaker Summary": None,
+    "Top Bookmakers": None,
     "Market Cluster": None,
     "Market Summary": None,
     "Market Analysis": None,
@@ -52,11 +54,26 @@ if uploaded_file:
         uploaded_file_name,
         total_match_turnover=total_match_turnover,
     )
+    tabs["Bookmaker Summary"] = set_session_state(
+        wb,
+        "bookmaker_summary_data",
+        sections.get_bookmaker_summary_data,
+        uploaded_file_name,
+        total_match_turnover=total_match_turnover,
+    )
     tabs["Market Summary"] = set_session_state(
         wb,
         "market_summary_data",
         sections.get_market_summary_data,
         uploaded_file_name,
+        total_match_turnover=total_match_turnover,
+    )
+    tabs["Top Bookmakers"] = set_session_state(
+        wb,
+        "top_bookmakers_data",
+        sections.get_top_bookmakers_data,
+        uploaded_file_name,
+        market_summary_data=tabs["Market Summary"],
         total_match_turnover=total_match_turnover,
     )
     tabs["Market Analysis"] = set_session_state(
