@@ -55,7 +55,23 @@ def get_top_customers_data(
         next_key = keys[i + 1]
 
         # Convert the total margin to the right format of the streamlit percentage display
-        df_dict[key]["Total Margin"] = df_dict[key]["Total Margin"] / 100
+        try:
+            # Handle common percentage formats like "15%", "0.15", etc.
+            margin_col = df_dict[key]["Total Margin"]
+
+            # If it's already a string with %, remove the % and convert
+            if margin_col.dtype == 'object':  # String column
+                # Remove % symbol if present and convert to numeric
+                margin_col = margin_col.astype(str).str.replace('%', '').str.strip()
+                df_dict[key]["Total Margin"] = pd.to_numeric(margin_col, errors='coerce') / 100
+            else:
+                # If already numeric, just divide
+                df_dict[key]["Total Margin"] = df_dict[key]["Total Margin"] / 100
+
+        except Exception as e:
+            print(f"Error processing Total Margin for {key}: {e}")
+            # Set to 0 or handle as needed
+            df_dict[key]["Total Margin"] = 0
 
         cleaned_key, customer_info = get_customer_key_splitted(key)
         cleaned_next_key, _ = get_customer_key_splitted(next_key)
