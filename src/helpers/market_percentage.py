@@ -13,6 +13,9 @@ periods_dict = {
     # Sets
     "1st set": "1S",
     "2nd set": "2S",
+    "3rd set": "3S",
+    "4th set": "4S",
+    "5th set": "5S",
 }
 
 
