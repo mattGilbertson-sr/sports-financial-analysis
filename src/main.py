@@ -41,6 +41,10 @@ if uploaded_file:
         uploaded_file_name,
     )
 
+    if not tabs["Overall Summary"]:
+        st.error("❌ The uploaded file is not valid.")
+        st.stop()
+
     # Get total match turnover from the Overall Summary
     total_match_turnover = tabs["Overall Summary"][
         "PreMatch/Live Summary - Singles Only"
