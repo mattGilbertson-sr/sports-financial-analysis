@@ -60,10 +60,12 @@ def get_top_customers_data(
             margin_col = df_dict[key]["Total Margin"]
 
             # If it's already a string with %, remove the % and convert
-            if margin_col.dtype == 'object':  # String column
+            if margin_col.dtype == "object":  # String column
                 # Remove % symbol if present and convert to numeric
-                margin_col = margin_col.astype(str).str.replace('%', '').str.strip()
-                df_dict[key]["Total Margin"] = pd.to_numeric(margin_col, errors='coerce') / 100
+                margin_col = margin_col.astype(str).str.replace("%", "").str.strip()
+                df_dict[key]["Total Margin"] = (
+                    pd.to_numeric(margin_col, errors="coerce") / 100
+                )
             else:
                 # If already numeric, just divide
                 df_dict[key]["Total Margin"] = df_dict[key]["Total Margin"] / 100
