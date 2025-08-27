@@ -18,6 +18,18 @@ def get_market_summary_data(
         workbook=workbook, sheet_name=sheet_name, target_tables=targeted_tables
     )
 
+    # Group rows with same Market value and sum numeric columns
+    for key, df in df_dict.items():
+        if "Market" in df.columns and len(df) > 0:
+            # Identify numeric columns (exclude Market column)
+            numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+            
+            # Group by Market and sum numeric columns
+            df_grouped = df.groupby("Market", as_index=False)[numeric_columns].sum().sort_values(by="Total T/O", ascending=False)   
+            
+            # Update the dataframe in the dictionary
+            df_dict[key] = df_grouped
+
     df_dict_items = list(df_dict.items())
 
     for key, df in df_dict_items:

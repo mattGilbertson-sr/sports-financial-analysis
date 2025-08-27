@@ -63,6 +63,10 @@ def find_table_data(
         except:
             pass
 
+    # Remove " (incl. overtime)" from Market column if it exists
+    if "Market" in df.columns:
+        df["Market"] = df["Market"].astype(str).str.replace(" (incl. overtime)", "", regex=False)
+
     if bets_cols_indexes:
         generic_columns = [
             col.replace("Accepted ", "")
