@@ -59,19 +59,16 @@ def get_market_percentage(
         df_filtered = df_filtered[
             df_filtered["Market"].str.contains("handicap", case=False, na=False)
         ]
-    elif "total" == market["Market"].lower() or (
-        period_market and f"{period_market} - total" == market["Market"].lower()
-    ):
-        totals_key = f"{period_market} - total" if period_market else "total"
+    elif period_market and f"{period_market} - total" == market["Market"].lower():
         df_filtered = df_filtered[
-            df_filtered["Market"].str.contains(totals_key, case=False, na=False)
+            df_filtered["Market"].str.contains(f"{period_market} - total", case=False, na=False)
         ]
     else:
         df_filtered = df_filtered[df_filtered["Market"] == market["Market"]]
 
     if not len(df_filtered) or not df_filtered["Total T/O"].sum():
         return 0
-
+    
     return market[turnover_column] / df_filtered["Total T/O"].sum()
 
 
